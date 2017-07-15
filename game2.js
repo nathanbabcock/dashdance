@@ -21,14 +21,42 @@ var mainState = {
     },
 
     attackSprite: null,
-    attack: function() {
+    attack: function(pointer) {
     	if(this.attackSprite && this.attackSprite.alive) return;
+    	var xhair = new Phaser.Point(pointer.clientX, pointer.clientY);
+
+    	var click_radius = 100,
+    		attack_radius = 400,
+    		clicked_enemy = null;
+    	this.enemies.forEachAlive(function(enemy){
+    		if(enemy.position.distance(xhair) <= click_radius 
+    			&& enemy.position.distance(this.player.position) <= attack_radius
+    			&& !clicked_enemy)
+    			clicked_enemy = enemy;
+    			//console.log("clicked an enemy");
+    	}, this);
+    	if(!clicked_enemy) return;
+
+    	var playerleft = false;
+    	if(this.player.position.x < clicked_enemy.position.x)
+    		playerleft = true;
+
+		//clicked_enemy.kill();
+    	this.player.position.setTo(clicked_enemy.position.x - this.player.width - 8, clicked_enemy.position.y + 12);
     	this.attackSprite = game.add.sprite(this.player.centerX, this.player.centerY, "attack");
     	this.attackSprite.alreadyHit = [];
     	this.attackSprite.anchor.setTo(0.5, 0.5);
     	this.positionAttackSprite();
     	this.attackSprite.animations.add("attack");
     	this.attackSprite.animations.play("attack", 15, false, true);
+    	this.player.body.velocity.y = this.jump_velocity;
+
+    	this.hitEnemy(this.player, clicked_enemy);
+
+    	//asdf
+
+    	return;
+
     },
 
     positionAttackSprite: function(){
@@ -84,6 +112,9 @@ var mainState = {
 		this.player.hasJump = false;
 		this.player.facing = 'right';
 		this.player.anchor.setTo(0.5, 0.5);
+
+		// Camera
+		game.camera.follow(this.player, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
 
 		// Create 3 groups that will contain our objects
 		this.walls = game.add.group();
@@ -192,8 +223,8 @@ var mainState = {
 		game.physics.arcade.collide(this.player, this.walls);
 		game.physics.arcade.collide(this.enemies, this.walls);
 
-		if(this.attackSprite && this.attackSprite.alive)
-		game.physics.arcade.overlap(this.attackSprite, this.enemies, this.hitEnemy, null, this);
+		// if(this.attackSprite && this.attackSprite.alive)
+		// game.physics.arcade.overlap(this.attackSprite, this.enemies, this.hitEnemy, null, this);
 
 		// Call the 'takeCoin' function when the player takes a coin
 		game.physics.arcade.overlap(this.player, this.coins, this.takeCoin, null, this);
