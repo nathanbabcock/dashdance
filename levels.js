@@ -90,6 +90,60 @@ var levels = [
 
 	{
 		level: [
+		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x>              D         i<x',
+		    'x          xxxxxxxxx        x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x>       i                 <x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x>i                        <x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x>          i              <x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x>                 i       <x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x>                        i<x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x                           x',
+		    'x 0                      $  x',
+		    'x>                        < x',
+		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+		],
+
+		onCreate: function(){
+			this.enemies.forEachAlive(function(enemy){enemy.movement = 'left';}, this)
+			this.enemies.children[1].movement = 'right';
+		}
+	},
+
+	{
+		level: [
 		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 		    'x                                         x',
 		    'x                                         x',

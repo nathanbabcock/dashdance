@@ -6,7 +6,8 @@ var mainState = {
 		game.load.image('wall', 'assets/brick.png');
 		game.load.image('coin', 'assets/coin.png');
 		game.load.image('spike', 'assets/spike_up.png');
-		game.load.image('enemy', 'assets/minotaur.png');
+		game.load.image('minotaur', 'assets/minotaur.png');
+		game.load.image('eyeball', 'assets/eyeball.png');
 		game.load.image('blood', 'assets/blood.png');
 		game.load.image('smoke', 'assets/smoke.png');
 		game.load.image('bg', 'assets/bg.png');
@@ -36,7 +37,7 @@ var mainState = {
     playerJump: function(){
     	if(!this.player.hasJump) return;
     	this.soundfx.jump.play();
-		this.player.body.velocity.y = this.jump_velocity;
+		this.player.body.velocity.y = Math.min(this.player.body.velocity.y, this.jump_velocity);
 		this.player.hasJump = false;
     },
 
@@ -231,10 +232,18 @@ var mainState = {
 			        	break;
 
 			        case '$':
-			        	var enemy = game.add.sprite(this.tile_size/2+this.tile_size*j, this.tile_size/2+this.tile_size*i-32, 'enemy')
+			        	var enemy = game.add.sprite(this.tile_size/2+this.tile_size*j, this.tile_size/2+this.tile_size*i-32, 'minotaur')
 			        	this.enemies.add(enemy);
 			        	enemy.health = 4;
 			        	enemy.body.gravity.y = this.gravity;
+			        	enemy.anchor.setTo(0.5, 0.5);
+			        	break;
+
+			        case 'i':
+			        	var enemy = game.add.sprite(this.tile_size/2+this.tile_size*j, this.tile_size/2+this.tile_size*i-32, 'eyeball')
+			        	this.enemies.add(enemy);
+			        	enemy.health = 1;
+			        	enemy.body.gravity.y = 0;
 			        	enemy.anchor.setTo(0.5, 0.5);
 			        	break;
 
@@ -353,7 +362,7 @@ var mainState = {
 
 
 		game.physics.arcade.collide(this.enemies, this.walls, function(enemy){ enemy.grounded = true; enemy.body.velocity.x = 0;});
-		game.physics.arcade.overlap(this.enemies, this.triggers, function(enemy, trigger){ console.log("TRIGGERED REEEEEEE");enemy.movement = trigger.movement; });
+		game.physics.arcade.overlap(this.enemies, this.triggers, function(enemy, trigger){ enemy.movement = trigger.movement; });
 
 		// Attack Hitbox
 		// if(this.attackSprite && this.attackSprite.alive)
@@ -361,7 +370,7 @@ var mainState = {
 
 		// Enemies
 		this.enemies.forEachAlive(function(enemy){
-			if(!enemy.grounded) return;
+			if(enemy.key != 'eyeball' && !enemy.grounded) return;
 			switch(enemy.movement){
 				case 'left':
 					enemy.body.velocity.x = -this.enemy_walk_speed;
@@ -436,7 +445,7 @@ var mainState = {
 };
 
 // Initialize the game and start our state
-var curLevel = 4;
+var curLevel = 5;
 
 var game = new Phaser.Game(1024, 768);  
 game.state.add('main', mainState);  
