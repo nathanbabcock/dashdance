@@ -4,10 +4,10 @@ var mainState = {
         // Here we preload the assets
 
         game.load.image('player', 'assets/player_highres.png');
-		game.load.image('wall', 'assets/wall.png');
+		game.load.image('wall', 'assets/brick.png');
 		game.load.image('coin', 'assets/coin.png');
-		game.load.image('spike', 'assets/spike.png');
-		game.load.image('enemy', 'assets/enemy.png');
+		game.load.image('spike', 'assets/spike_up.png');
+		game.load.image('enemy', 'assets/minotaur.png');
 		game.load.spritesheet('attack', 'assets/attack.png', 57, 63, 3);
     },
 
@@ -89,7 +89,7 @@ var mainState = {
         // Here we create the game
 
         // Set the background color to blue
-		game.stage.backgroundColor = '#3598db';
+		game.stage.backgroundColor = '#ffffff';//'#3598db';
 
 		// Start the Arcade physics system (for movements and collisions)
 		game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -209,7 +209,7 @@ var mainState = {
 		        else if (level[i][j] == '$') {
 		        	var enemy = game.add.sprite(tile_size+tile_size*j, tile_size+tile_size*i-32, 'enemy')
 		        	this.enemies.add(enemy);
-		        	game.physics.enable(enemy, Phaser.Physics.ARCADE);
+		        	enemy.health = 4;
 		        	enemy.body.gravity.y = this.gravity;
 		        	enemy.anchor.setTo(0.5, 0.5);
 		        }
@@ -240,8 +240,16 @@ var mainState = {
     	//this.player.position.add(this.player.dashVector.clone().setMagnitude(-100));
 		this.player.hasJump = true;
 
+		// Enemy dies
+		enemy.health--;
+		if(enemy.health <= 0){
+			enemy.body.velocity.setTo(0, 0);
+			enemy.kill();
+			this.player.body.velocity = this.player.dashVector.setMagnitude(600);
+		}
+
 		// Enemy knockback
-		if(enemy.grounded){
+		else if(enemy.grounded){
 			enemy.body.velocity.y = this.jump_velocity * 1;
 			enemy.body.velocity.x = 0;
 			enemy.grounded = false;
@@ -255,7 +263,8 @@ var mainState = {
 			this.player.body.velocity.y = this.jump_velocity * 0.2;
     		this.player.body.velocity.x *= 0.3;
 		}
-		// TODO damage enemy 1 heart
+
+
 
 		this.player.dashTarget = null;
 		this.player.dashVector = null;
@@ -304,7 +313,7 @@ var mainState = {
 					this.player.scale.x = 1;
 				}
 			}
-			else 
+			else if(this.player.body.touching.down)
 			    this.player.body.velocity.x = 0;
 			
 			if(this.player.body.touching.down)

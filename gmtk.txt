@@ -52,7 +52,7 @@ LEVEL IDEAS
 - Jump over a gap into a vertical wall, must blink through the wall to a pacing enemy (timing)
 - U shape, melee enemy, spikes at bottom (and sides)
 
-
+d
 action-puzzle-platformer
 
 MVP:
@@ -124,3 +124,29 @@ Juice
 - Screenshake
 
 Mario-shaped levels basically
+
+
+gfx
+- dash indicator (?)
+- health indicator (?)
+- blood particles
+- enemy sprites
+- spike sprites
+- wall sprites (?)
+- death fx
+- screen shake
+- walking sprite
+- bounciness
+
+also TODO
+- 10+ levels
+- tutorial text
+- pacing enemies
+- level transitions
+- level menu
+- jumping enemies?
+
+
+- sound fx???
+- name
+- upload
