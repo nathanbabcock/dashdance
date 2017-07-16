@@ -1,8 +1,7 @@
  // Create the state that will contain the whole game
 var mainState = {  
-    preload: function() {  
-        // Here we preload the assets
-
+    preload: function() {
+        // Sprites
         game.load.image('player', 'assets/player_highres.png');
 		game.load.image('wall', 'assets/brick.png');
 		game.load.image('coin', 'assets/coin.png');
@@ -10,7 +9,16 @@ var mainState = {
 		game.load.image('enemy', 'assets/minotaur.png');
 		game.load.image('blood', 'assets/blood.png');
 		game.load.image('smoke', 'assets/smoke.png');
+
+		// Animation
 		game.load.spritesheet('attack', 'assets/attack.png', 57, 63, 3);
+
+		// Sound fx
+		game.load.audio('kill', 'assets/audio/kill.wav');
+		game.load.audio('hit', 'assets/audio/hit.wav');
+		game.load.audio('nextlevel', 'assets/audio/nextlevel.wav');
+		game.load.audio('death', 'assets/audio/death.wav');
+		game.load.audio('jump', 'assets/audio/jump.wav');
     },
 
     // Statics
@@ -21,8 +29,14 @@ var mainState = {
 
     playerJump: function(){
     	if(!this.player.hasJump) return;
+    	this.soundfx.jump.play();
 		this.player.body.velocity.y = this.jump_velocity;
 		this.player.hasJump = false;
+    },
+
+    playerDeath: function(){
+    	this.soundfx.death.play();
+    	this.restart();
     },
 
     attackSprite: null,
@@ -111,7 +125,7 @@ var mainState = {
 			R: game.input.keyboard.addKey(Phaser.Keyboard.R)
 		};
 		this.input.W.onDown.add(this.playerJump.bind(this));
-		this.input.R.onDown.add(this.restart);
+		this.input.R.onDown.add(this.playerDeath.bind(this));
 		this.input.SPACE.onDown.add(this.playerJump.bind(this));
 		this.input.cursor.up.onDown.add(this.playerJump.bind(this));
 		game.input.onDown.add(this.attack.bind(this));
@@ -159,6 +173,15 @@ var mainState = {
     	this.smokeEmitter.maxParticleSpeed.setTo(50, 50);
     	//this.smokeEmitter.start(false, 1000, 1);
     	//this.smokeEmitter.on = false;
+
+    	// Audio
+    	this.soundfx = {
+    		kill: game.add.audio('kill'),
+    		hit: game.add.audio('hit'),
+    		death: game.add.audio('death'),
+    		nextlevel: game.add.audio('nextlevel'),
+    		jump: game.add.audio('jump')
+    	};
 
 		// Design the level. x = wall, o = coin, ! = lava, $ = enemy
 /*		var level = [
@@ -280,22 +303,25 @@ var mainState = {
 			enemy.body.velocity.setTo(0, 0);
 			enemy.kill();
 			this.player.body.velocity = this.player.dashVector.setMagnitude(600);
-		}
-
-		// Enemy knockback
-		else if(enemy.grounded){
-			enemy.body.velocity.y = this.jump_velocity * 1;
-			enemy.body.velocity.x = 0;
-			enemy.grounded = false;
-
-			this.player.body.velocity.y = 0;
-			this.player.body.velocity.x = 0;
+			this.soundfx.kill.play();
 		} else {
-			var FACTOR = 0.5;
-			enemy.body.velocity = this.player.dashVector.setMagnitude(500);
+			this.soundfx.hit.play();
 
-			this.player.body.velocity.y = this.jump_velocity * 0.2;
-    		this.player.body.velocity.x *= 0.3;
+			// Enemy knockback
+			if(enemy.grounded){
+				enemy.body.velocity.y = this.jump_velocity * 1;
+				enemy.body.velocity.x = 0;
+				enemy.grounded = false;
+
+				this.player.body.velocity.y = 0;
+				this.player.body.velocity.x = 0;
+			} else {
+				var FACTOR = 0.5;
+				enemy.body.velocity = this.player.dashVector.setMagnitude(500);
+
+				this.player.body.velocity.y = this.jump_velocity * 0.2;
+	    		this.player.body.velocity.x *= 0.3;
+			}
 		}
 
 		// blood
@@ -332,11 +358,11 @@ var mainState = {
         // Enemies
         else {
         	//this.smokeEmitter.on = false;
-        	game.physics.arcade.overlap(this.player, this.enemies, this.restart, null, this);
+        	game.physics.arcade.overlap(this.player, this.enemies, this.playerDeath, null, this);
         }
 		
 		// Spikes
-    	game.physics.arcade.overlap(this.player, this.spikes, this.restart, null, this);
+    	game.physics.arcade.overlap(this.player, this.spikes, this.playerDeath, null, this);
 
     	// Movement
     	if(!this.player.dashTarget){
