@@ -8,6 +8,8 @@ var mainState = {
 		game.load.image('coin', 'assets/coin.png');
 		game.load.image('spike', 'assets/spike_up.png');
 		game.load.image('enemy', 'assets/minotaur.png');
+		game.load.image('blood', 'assets/blood.png');
+		game.load.image('smoke', 'assets/smoke.png');
 		game.load.spritesheet('attack', 'assets/attack.png', 57, 63, 3);
     },
 
@@ -132,6 +134,32 @@ var mainState = {
 		this.spikes = game.add.group();
 		this.enemies = game.add.group();
 
+		// Blood emitter
+		this.bloodEmitter = game.add.emitter(0, 0, 500);
+		this.bloodEmitter.makeParticles('blood');
+		this.bloodEmitter.gravity = this.gravity;
+		// this.bloodEmitter.minRotation = 0;
+  //   	this.bloodEmitter.maxRotation = 0;
+    	this.bloodEmitter.minParticleSpeed.setTo(-200, -200);
+    	this.bloodEmitter.maxParticleSpeed.setTo(200, 200);
+    	this.bloodEmitter.setScale(1.5, 0, 1.5, 0, 1000);
+    	// this.bloodEmitter.minParticleScale = 0.5;
+    	// this.bloodEmitter.minParticleScale = 1.25;
+    	//this.bloodEmitter.maxParticleSpeed = 1000;
+
+    	// Smoke emitter
+    	this.smokeEmitter = game.add.emitter(0, 0, 100);
+    	this.smokeEmitter.makeParticles('smoke');
+    	this.smokeEmitter.gravity = 0;
+        //this.smokeEmitter.minRotation = 0;
+     	//this.smokeEmitter.maxRotation = 0;
+    	//this.smokeEmitter.setAlpha(1, 0, 1000);
+        this.smokeEmitter.setScale(1.25, 0, 1.25, 0, 500);
+        this.smokeEmitter.minParticleSpeed.setTo(-50, -50);
+    	this.smokeEmitter.maxParticleSpeed.setTo(50, 50);
+    	//this.smokeEmitter.start(false, 1000, 1);
+    	//this.smokeEmitter.on = false;
+
 		// Design the level. x = wall, o = coin, ! = lava, $ = enemy
 /*		var level = [
 		    'xxxxxxxxxxxxxxxxxxxxxx',
@@ -219,6 +247,12 @@ var mainState = {
 		game.world.bringToTop(this.player);
     },
 
+    bloodSpray: function(x, y, num = 15){
+    	this.bloodEmitter.x = x;
+    	this.bloodEmitter.y = y;
+    	this.bloodEmitter.start(true, 2000, null, num);
+    },
+
     hitEnemy: function(player, enemy){
     	// if(this.attackSprite.alreadyHit.includes(enemy))
     	// 	return;
@@ -264,7 +298,11 @@ var mainState = {
     		this.player.body.velocity.x *= 0.3;
 		}
 
+		// blood
+		this.bloodSpray(enemy.centerX, enemy.centerY);
 
+		// camera shake
+		game.camera.shake(0.0075, 100);
 
 		this.player.dashTarget = null;
 		this.player.dashVector = null;
@@ -274,7 +312,7 @@ var mainState = {
 
     	// Walls
 		game.physics.arcade.collide(this.player, this.walls);
-		game.physics.arcade.collide(this.enemies, this.walls, function(enemy){ enemy.grounded = true; });
+		game.physics.arcade.collide(this.enemies, this.walls, function(enemy){ enemy.grounded = true; enemy.body.velocity.x = 0;});
 
 		// Attack Hitbox
 		// if(this.attackSprite && this.attackSprite.alive)
@@ -286,11 +324,16 @@ var mainState = {
         		this.player.dashTarget.position.x - this.player.position.x,
         		this.player.dashTarget.position.y - this.player.position.y
         	).setMagnitude(this.dash_speed);
+        	// this.smokeEmitter.x = this.player.centerX;
+        	// this.smokeEmitter.y = this.player.centerY;
+        	// this.smokeEmitter.start(true, 1000, null, 5);
         	game.physics.arcade.collide(this.player, this.enemies, this.hitEnemy, null, this);
         }
         // Enemies
-        else
+        else {
+        	//this.smokeEmitter.on = false;
         	game.physics.arcade.overlap(this.player, this.enemies, this.restart, null, this);
+        }
 		
 		// Spikes
     	game.physics.arcade.overlap(this.player, this.spikes, this.restart, null, this);
