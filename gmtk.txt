@@ -114,6 +114,8 @@ what is this game called?
 	- Stab things with your horn
 - Asian/ninja themed words: mantra, zen
 - "Duel Effect"
+- dash, duel, ninja, super, 
+- Dashdance
 
 
 Juice
@@ -140,9 +142,9 @@ X screen shake
 
 also TODO
 - 10+ levels
-- tutorial text
-- pacing enemies
-- level transitions
+X tutorial text
+X pacing enemies
+X level transitions
 - level menu
 - jumping enemies?
 
@@ -155,7 +157,7 @@ Priority:
 X background
 - fix walljump bug!?!?
 - levels
-- eyeball enemy
+X eyeball enemy
 X ending door
 - other directional spikes
 
@@ -170,7 +172,11 @@ extra:
 - death fx
 
 bugs 
-- glitching into blocks when dashing
+- glitching into blocks when dashing (make player slightly taller?)
 - hitting multiple enemies?
-- running into enemies on dash
-- coming down at enemies = basically instakill
+- running into enemies on dash (invuln frames?)
+- coming down at enemies = basically instakill (see above?)
+- dashing and getting magnet-stuck under platforms (cancel dash on collision)
+- disable arrow keys after dash
+- up triggers cancel minotaur movement
+- walking can exceed walking speed (only allow > walk speed in air)

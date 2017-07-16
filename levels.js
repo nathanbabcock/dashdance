@@ -88,13 +88,79 @@ var levels = [
 		]
 	},
 
+
+	{
+		level: [
+		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+		    'x                                         x',
+		    'x                                         x',
+		    'x                                         x',
+		    'x                   $ $                   x',
+		    'x                   <D>                   x',
+		    'x            xxxxxxxxxxxxxxxx             x',
+		    'x                                         x',
+		    'x>                                        x',
+		    'x                                      i <x',
+		    'x                                         x',
+		    'x  $                                   $  x',
+		    'x  >                                   <  x',
+		    'xxxxxxxxxxxx                 xxxxxxxxxxxxxx',
+		    'x                                         x',
+		    'x                                         x',
+		    'x                                         x',
+		    'x                                         x',
+		    'x                                         x',
+		    'x                                         x',
+		    'x           xxxxxxxxxxxxxxxxx             x',
+		    'x                                         x',
+		    'x                                         x',
+		    'x                                         x',
+		    'x                                         x',
+		    'x                                         x',
+		    'x 0                                       x',
+		    'x>                                      < x',
+		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+		],
+		onCreate: function(){
+			this.enemies.children[2].movement = 'left';
+		}
+	},
+
+	{
+		level: [
+		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+		    'x                               v                              x',
+		    'x                                                              x',
+		    'x                                                              x',
+		    'x                                                              x',
+		    'x                                                              x',
+		    'x                                                              x',
+		    'x                                                              x',
+		    'x                                                              x',
+		    'x                                                              x',
+		    'x     $                                                        x',
+		    'x                                                             Dx',
+		    'xxxxxxxx                                                xxxxxxxx',
+		    'xxxxxxxx                                                xxxxxxxx',
+		    'xxxxxxxx                        i                       xxxxxxxx',
+		    'xxxxxxxx                        ^                       xxxxxxxx',
+		    'xxxxxxxx!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!xxxxxxxx',
+		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+		],
+
+		onCreate: function(){
+			this.enemies.children[1].movement = 'up';
+		}
+	},
+
+
 	{
 		level: [
 		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 		    'x                           x',
 		    'x                           x',
 		    'x                           x',
-		    'x>              D         i<x',
+		    'x>             iD          <x',
 		    'x          xxxxxxxxx        x',
 		    'x                           x',
 		    'x                           x',
@@ -138,9 +204,11 @@ var levels = [
 
 		onCreate: function(){
 			this.enemies.forEachAlive(function(enemy){enemy.movement = 'left';}, this)
+			this.enemies.children[0].movement = 'right';
 			this.enemies.children[1].movement = 'right';
 		}
 	},
+
 
 	{
 		level: [
@@ -174,6 +242,36 @@ var levels = [
 		    'x>                                      < x',
 		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 		]
+	},
+
+	{
+		level: [
+		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+		    'x                                                                                      v               x',
+		    'x                                                                                      i              Dx',
+		    'x                                                                          $                  xxxxxxxxxx',
+		    'x                                                                                                      x',
+		    'x                                                                                                      x',
+		    'x                                                    >                      <                          x',
+		    'x                                                     xxxxxxxxxxxxxxxxxxxxxx                           x',
+		    'x                                                                                                      x',
+		    'x                                                                                                      x',
+		    'x      0     $                                                                                         x',
+		    'x            >                                                                                         x',
+		    'xxxxxxxxxxxxxxxxxxxx     xxxxxxxxxxxxxxxx                                                              x',
+		    'xxxxxxxxxxxxxxxxxxxx     xxxxxxxxxxxxxxxx                                                              x',
+		    'xxxxxxxxxxxxxxxxxxxx     xxxxxxxxxxxxxxxx                                                              x',
+		    'xxxxxxxxxxxxxxxxxxxx>   <xxxxxxxxxxxxxxxx>                                             ^              <x',
+		    'xxxxxxxxxxxxxxxxxxxx!!!!!xxxxxxxxxxxxxxxx!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!x',
+		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+		],
+
+		onCreate: function(){
+			this.enemies.forEachAlive(function(enemy){
+				if(enemy.key === 'eyeball')
+					enemy.movement = 'down';
+			});
+		}
 	},
 
 	{

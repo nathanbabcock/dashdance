@@ -268,6 +268,22 @@ var mainState = {
 			        	this.triggers.add(trigger);
 			        	break;
 
+			        case '^':
+			        	var trigger = game.add.sprite(this.tile_size/2+this.tile_size*j - 8, this.tile_size/2+this.tile_size*i-16);
+			        	trigger.width = 1;
+			        	trigger.height = 1;
+			        	trigger.movement = 'up';
+			        	this.triggers.add(trigger);
+			        	break;
+
+			        case 'v':
+			        	var trigger = game.add.sprite(this.tile_size/2+this.tile_size*j - 8, this.tile_size/2+this.tile_size*i-16);
+			        	trigger.width = 1;
+			        	trigger.height = 1;
+			        	trigger.movement = 'down';
+			        	this.triggers.add(trigger);
+			        	break;
+
 
 			        case '0':
 			        	this.player.position.setTo(this.tile_size/2+this.tile_size*j - 8, this.tile_size/2+this.tile_size*i-16);
@@ -323,7 +339,7 @@ var mainState = {
 			// Enemy knockback
 			if(enemy.grounded){
 				enemy.body.velocity.y = this.jump_velocity * 1;
-				enemy.body.velocity.x = 0;
+				enemy.body.velocity.x = 0
 				enemy.grounded = false;
 
 				this.player.body.velocity.y = 0;
@@ -379,6 +395,14 @@ var mainState = {
 				case 'right':
 					enemy.body.velocity.x = this.enemy_walk_speed;
 					enemy.scale.x = -1;
+					break;
+				case 'up':
+					if(enemy.key === 'eyeball')
+						enemy.body.velocity.y = -this.enemy_walk_speed;
+					break;
+				case 'down':
+					if(enemy.key === 'eyeball')
+						enemy.body.velocity.y = this.enemy_walk_speed;
 					break;
 			}
 		}, this);
@@ -445,7 +469,7 @@ var mainState = {
 };
 
 // Initialize the game and start our state
-var curLevel = 5;
+var curLevel = 0;
 
 var game = new Phaser.Game(1024, 768);  
 game.state.add('main', mainState);  
