@@ -10,6 +10,7 @@ var mainState = {
 		game.load.image('blood', 'assets/blood.png');
 		game.load.image('smoke', 'assets/smoke.png');
 		game.load.image('bg', 'assets/bg.png');
+		game.load.image('door', 'assets/door.png');
 
 		// Animation
 		game.load.spritesheet('attack', 'assets/attack.png', 57, 63, 3);
@@ -148,8 +149,8 @@ var mainState = {
 		    'x                                   x',
 		    'x                                   x',
 		    'x                                   x',
-		    'x                                   x',
 		    'x     $                             x',
+		    'x                                  Dx',
 		    'xxxxxxxx                     xxxxxxxx',
 		    'xxxxxxxx                     xxxxxxxx',
 		    'xxxxxxxx                     xxxxxxxx',
@@ -160,9 +161,9 @@ var mainState = {
 
 		// Add the physics engine to all game objects
 
-		var tile_size = 32,
-			world_width = level[0].length * tile_size,
-			world_height = level.length * tile_size;
+		this.tile_size = 32;
+		var world_width = level[0].length * this.tile_size,
+			world_height = level.length * this.tile_size;
 		game.world.enableBody = true;
 		game.world.setBounds(0, 0, world_width, world_height);
 		game.add.tileSprite(0, 0, world_width, world_height, 'bg');
@@ -236,43 +237,59 @@ var mainState = {
     		jump: game.add.audio('jump')
     	};
 
-		// Create the level by going through the array
+    	this.makeLevel(level);
+		game.world.bringToTop(this.player);
+    },
+
+    makeLevel: function(level){
+    	// Create the level by going through the array
 		for (var i = 0; i < level.length; i++) {
 		    for (var j = 0; j < level[i].length; j++) {
+		    	switch(level[i][j]){
+			        // Create a wall and add it to the 'walls' group
+			        case 'x':
+			            var wall = game.add.sprite(this.tile_size/2+this.tile_size*j, this.tile_size/2+this.tile_size*i, 'wall');
+			            this.walls.add(wall);
+			            wall.body.immovable = true;
+			            wall.anchor.setTo(0.5, 0.5);
+			        	break;
 
-		        // Create a wall and add it to the 'walls' group
-		        if (level[i][j] == 'x') {
-		            var wall = game.add.sprite(tile_size/2+tile_size*j, tile_size/2+tile_size*i, 'wall');
-		            this.walls.add(wall);
-		            wall.body.immovable = true;
-		            wall.anchor.setTo(0.5, 0.5);
-		        }
+			        // Create a coin and add it to the 'coins' group
+			        case 'o': 
+			            var coin = game.add.sprite(this.tile_size/2+this.tile_size*j, this.tile_size/2+this.tile_size*i, 'coin');
+			            this.coins.add(coin);
+			            coin.anchor.setTo(0.5, 0.5);
+			        	break;
 
-		        // Create a coin and add it to the 'coins' group
-		        else if (level[i][j] == 'o') {
-		            var coin = game.add.sprite(tile_size/2+tile_size*j, tile_size/2+tile_size*i, 'coin');
-		            this.coins.add(coin);
-		            coin.anchor.setTo(0.5, 0.5);
-		        }
+			        // Create a enemy and add it to the 'enemies' group
+			        case '!':
+			            var spike = game.add.sprite(this.tile_size/2+this.tile_size*j, this.tile_size/2+this.tile_size*i, 'spike');
+			            this.spikes.add(spike);
+			            spike.anchor.setTo(0.5, 0.5);
+			        	break;
 
-		        // Create a enemy and add it to the 'enemies' group
-		        else if (level[i][j] == '!') {
-		            var spike = game.add.sprite(tile_size/2+tile_size*j, tile_size/2+tile_size*i, 'spike');
-		            this.spikes.add(spike);
-		            spike.anchor.setTo(0.5, 0.5);
-		        }
+			        case '$':
+			        	var enemy = game.add.sprite(this.tile_size/2+this.tile_size*j, this.tile_size/2+this.tile_size*i-32, 'enemy')
+			        	this.enemies.add(enemy);
+			        	enemy.health = 4;
+			        	enemy.body.gravity.y = this.gravity;
+			        	enemy.anchor.setTo(0.5, 0.5);
+			        	break;
 
-		        else if (level[i][j] == '$') {
-		        	var enemy = game.add.sprite(tile_size+tile_size*j, tile_size+tile_size*i-32, 'enemy')
-		        	this.enemies.add(enemy);
-		        	enemy.health = 4;
-		        	enemy.body.gravity.y = this.gravity;
-		        	enemy.anchor.setTo(0.5, 0.5);
-		        }
+			        case 'D':
+			        	this.exit = game.add.sprite(this.tile_size/2+this.tile_size*j - 8, this.tile_size/2+this.tile_size*i-16, 'door');
+			        	this.exit.anchor.setTo(0.5, 0.5);
+			        	break;
+
+			        case ' ':
+			        	break;
+
+			        default:
+			        	console.error ("unexpected map ASCII: ", level[i][j]);
+			        	break;
+			    }
 		    }
 		}
-
-		game.world.bringToTop(this.player);
     },
 
     bloodSpray: function(x, y, num = 15){
@@ -339,9 +356,16 @@ var mainState = {
 		this.player.dashVector = null;
     },
 
+    nextLevel: function(){
+    	console.log("YOU WIN!");
+    	this.soundfx.nextlevel.play();
+    	this.restart();
+    },
+
     update: function() {  
 
     	// Walls
+    	game.physics.arcade.overlap(this.player, this.exit, this.nextLevel, null, this);
 		game.physics.arcade.collide(this.player, this.walls);
 		game.physics.arcade.collide(this.enemies, this.walls, function(enemy){ enemy.grounded = true; enemy.body.velocity.x = 0;});
 
