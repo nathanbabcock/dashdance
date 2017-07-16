@@ -11,8 +11,11 @@ var mainState = {
 		game.load.spritesheet('attack', 'assets/attack.png', 57, 63, 3);
     },
 
+    // Statics
     jump_velocity: -400,
-    gravity:1000,
+    walk_speed: 200,
+    gravity: 1000,
+    dash_speed: 2000,
 
     playerJump: function(){
     	if(!this.player.hasJump) return;
@@ -23,23 +26,29 @@ var mainState = {
     attackSprite: null,
     attack: function(pointer) {
     	if(this.attackSprite && this.attackSprite.alive) return;
-    	var xhair = new Phaser.Point(pointer.clientX, pointer.clientY);
+    	var xhair = new Phaser.Point(pointer.worldX, pointer.worldY);
 
     	var click_radius = 100,
-    		attack_radius = 400,
+    		attack_radius = 200,
     		clicked_enemy = null;
     	this.enemies.forEachAlive(function(enemy){
     		if(enemy.position.distance(xhair) <= click_radius 
     			&& enemy.position.distance(this.player.position) <= attack_radius
-    			&& !clicked_enemy)
+    			&& !clicked_enemy) {
     			clicked_enemy = enemy;
-    			//console.log("clicked an enemy");
+    		}
     	}, this);
     	if(!clicked_enemy) return;
 
-    	var playerleft = false;
-    	if(this.player.position.x < clicked_enemy.position.x)
-    		playerleft = true;
+    	// ADD DASH STUFF HERE
+    	this.player.dashTarget = clicked_enemy;
+    	this.player.dashVector = new Phaser.Point(clicked_enemy.position.x - this.player.position.x, clicked_enemy.position.y - this.player.position.y);   	
+    	
+    	// var playerleft = false;
+    	// if(this.player.position.x < clicked_enemy.position.x)
+    	// 	playerleft = true;
+
+    	return;
 
 		//clicked_enemy.kill();
     	this.player.position.setTo(clicked_enemy.position.x - this.player.width - 8, clicked_enemy.position.y + 12);
@@ -87,6 +96,7 @@ var mainState = {
 
 		// Add the physics engine to all game objects
 		game.world.enableBody = true;
+		game.world.setBounds(0, 0, 1920, 1920);
 
 		// Variable to store the arrow key pressed
 		this.input = {
@@ -199,61 +209,107 @@ var mainState = {
 		        else if (level[i][j] == '$') {
 		        	var enemy = game.add.sprite(tile_size+tile_size*j, tile_size+tile_size*i-32, 'enemy')
 		        	this.enemies.add(enemy);
+		        	game.physics.enable(enemy, Phaser.Physics.ARCADE);
 		        	enemy.body.gravity.y = this.gravity;
 		        	enemy.anchor.setTo(0.5, 0.5);
 		        }
 		    }
 		}
+
+		game.world.bringToTop(this.player);
     },
 
     hitEnemy: function(player, enemy){
-    	if(this.attackSprite.alreadyHit.includes(enemy))
-    		return;
+    	// if(this.attackSprite.alreadyHit.includes(enemy))
+    	// 	return;
 
-    	this.player.hasJump = true;
-    	enemy.body.velocity.x += 100 * (player.centerX < enemy.centerX ? 1 : -1)
-    	enemy.body.velocity.y = this.jump_velocity;//-this.gravity * 0.4;
-    	this.attackSprite.alreadyHit.push(enemy);
+    	
+    	// enemy.body.velocity.x += 100 * (player.centerX < enemy.centerX ? 1 : -1)
+    	// enemy.body.velocity.y = this.jump_velocity;//-this.gravity * 0.4;
+    	// this.attackSprite.alreadyHit.push(enemy);
+
+    	// Animation
+    	this.attackSprite = game.add.sprite(this.player.centerX, this.player.centerY, "attack");
+    	this.attackSprite.alreadyHit = [];
+    	this.attackSprite.anchor.setTo(0.5, 0.5);
+    	this.positionAttackSprite();
+    	this.attackSprite.animations.add("attack");
+    	this.attackSprite.animations.play("attack", 30, false, true);
+
+
+    	//this.player.position.add(this.player.dashVector.clone().setMagnitude(-100));
+		this.player.hasJump = true;
+
+		// Enemy knockback
+		if(enemy.grounded){
+			enemy.body.velocity.y = this.jump_velocity * 1;
+			enemy.body.velocity.x = 0;
+			enemy.grounded = false;
+
+			this.player.body.velocity.y = 0;
+			this.player.body.velocity.x = 0;
+		} else {
+			var FACTOR = 0.5;
+			enemy.body.velocity = this.player.dashVector.setMagnitude(500);
+
+			this.player.body.velocity.y = this.jump_velocity * 0.2;
+    		this.player.body.velocity.x *= 0.3;
+		}
+		// TODO damage enemy 1 heart
+
+		this.player.dashTarget = null;
+		this.player.dashVector = null;
     },
 
     update: function() {  
-        // Here we update the game 60 times per second
 
-		// Make the player and the walls collide
+    	// Walls
 		game.physics.arcade.collide(this.player, this.walls);
-		game.physics.arcade.collide(this.enemies, this.walls);
+		game.physics.arcade.collide(this.enemies, this.walls, function(enemy){ enemy.grounded = true; });
 
+		// Attack Hitbox
 		// if(this.attackSprite && this.attackSprite.alive)
 		// game.physics.arcade.overlap(this.attackSprite, this.enemies, this.hitEnemy, null, this);
 
-		// Call the 'takeCoin' function when the player takes a coin
-		game.physics.arcade.overlap(this.player, this.coins, this.takeCoin, null, this);
-
-		// Call the 'restart' function when the player touches the enemy
-		game.physics.arcade.overlap(this.player, this.enemies, this.restart, null, this);
-    	game.physics.arcade.overlap(this.player, this.spikes, this.restart, null, this);
-		// Move the player when an arrow key is pressed
-		if (this.input.cursor.left.isDown || this.input.A.isDown) {
-		    this.player.body.velocity.x = -200;
-		    if (this.player.facing != 'left'){
-				this.player.facing = 'left';
-				this.player.scale.x = -1;
-	        }
-		}
-		else if (this.input.cursor.right.isDown || this.input.D.isDown) {
-		    this.player.body.velocity.x = 200;
-
-		    if (this.player.facing != 'right') {
-	            //player.animations.play('right');
-				this.player.facing = 'right';
-				this.player.scale.x = 1;
-			}
-		}
-		else 
-		    this.player.body.velocity.x = 0;
+		// Dash
+        if(this.player.dashTarget){
+        	this.player.body.velocity = new Phaser.Point(
+        		this.player.dashTarget.position.x - this.player.position.x,
+        		this.player.dashTarget.position.y - this.player.position.y
+        	).setMagnitude(this.dash_speed);
+        	game.physics.arcade.collide(this.player, this.enemies, this.hitEnemy, null, this);
+        }
+        // Enemies
+        else
+        	game.physics.arcade.overlap(this.player, this.enemies, this.restart, null, this);
 		
-		if(this.player.body.touching.down)
-			this.player.hasJump = true;
+		// Spikes
+    	game.physics.arcade.overlap(this.player, this.spikes, this.restart, null, this);
+
+    	// Movement
+    	if(!this.player.dashTarget){
+			if (this.input.cursor.left.isDown || this.input.A.isDown) {
+			    this.player.body.velocity.x =  Math.min(-this.walk_speed, this.player.body.velocity.x);
+			    if (this.player.facing != 'left'){
+					this.player.facing = 'left';
+					this.player.scale.x = -1;
+		        }
+			}
+			else if (this.input.cursor.right.isDown || this.input.D.isDown) {
+			    this.player.body.velocity.x = Math.max(this.walk_speed, this.player.body.velocity.x);
+
+			    if (this.player.facing != 'right') {
+		            //player.animations.play('right');
+					this.player.facing = 'right';
+					this.player.scale.x = 1;
+				}
+			}
+			else 
+			    this.player.body.velocity.x = 0;
+			
+			if(this.player.body.touching.down)
+				this.player.hasJump = true;
+		}
 
 		// Attack hitbox
 		if(this.attackSprite && this.attackSprite.alive)
