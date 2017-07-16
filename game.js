@@ -12,6 +12,8 @@ var mainState = {
 		game.load.image('smoke', 'assets/smoke.png');
 		game.load.image('bg', 'assets/bg.png');
 		game.load.image('door', 'assets/door.png');
+		game.load.image('frame', 'assets/frame.png');
+		game.load.image('frame_wide', 'assets/frame_wide.png');
 
 		// Animation
 		game.load.spritesheet('attack', 'assets/attack.png', 57, 63, 3);
@@ -134,10 +136,12 @@ var mainState = {
 			A: game.input.keyboard.addKey(Phaser.Keyboard.A),
 			S: game.input.keyboard.addKey(Phaser.Keyboard.S),
 			D: game.input.keyboard.addKey(Phaser.Keyboard.D),
-			R: game.input.keyboard.addKey(Phaser.Keyboard.R)
+			R: game.input.keyboard.addKey(Phaser.Keyboard.R),
+			ESC: game.input.keyboard.addKey(Phaser.Keyboard.ESC)
 		};
 		this.input.W.onDown.add(this.playerJump.bind(this));
 		this.input.R.onDown.add(this.playerDeath.bind(this));
+		this.input.ESC.onDown.add((function(){ curLevel = 0; this.restart(); }).bind(this));
 		this.input.SPACE.onDown.add(this.playerJump.bind(this));
 		this.input.cursor.up.onDown.add(this.playerJump.bind(this));
 		game.input.onDown.add(this.attack.bind(this));
@@ -160,6 +164,7 @@ var mainState = {
 		this.spikes = game.add.group();
 		this.enemies = game.add.group();
 		this.triggers = game.add.group();
+		this.teleporters = game.add.group();
 
 		// Blood emitter
 		this.bloodEmitter = game.add.emitter(0, 0, 500);
@@ -205,6 +210,8 @@ var mainState = {
     },
 
     makeLevel: function(level){
+    	var tps = 0;
+
     	// Create the level by going through the array
 		for (var i = 0; i < level.length; i++) {
 		    for (var j = 0; j < level[i].length; j++) {
@@ -258,6 +265,7 @@ var mainState = {
 			        	trigger.height = 1;
 			        	trigger.movement = 'right';
 			        	this.triggers.add(trigger);
+			        	trigger.anchor.setTo(0.5, 0.5);
 			        	break;
 
 			        case '<':
@@ -266,6 +274,7 @@ var mainState = {
 			        	trigger.height = 1;
 			        	trigger.movement = 'left';
 			        	this.triggers.add(trigger);
+			        	trigger.anchor.setTo(0.5, 0.5);
 			        	break;
 
 			        case '^':
@@ -274,6 +283,7 @@ var mainState = {
 			        	trigger.height = 1;
 			        	trigger.movement = 'up';
 			        	this.triggers.add(trigger);
+			        	trigger.anchor.setTo(0.5, 0.5);
 			        	break;
 
 			        case 'v':
@@ -282,12 +292,25 @@ var mainState = {
 			        	trigger.height = 1;
 			        	trigger.movement = 'down';
 			        	this.triggers.add(trigger);
+			        	trigger.anchor.setTo(0.5, 0.5);
 			        	break;
 
 
 			        case '0':
 			        	this.player.position.setTo(this.tile_size/2+this.tile_size*j - 8, this.tile_size/2+this.tile_size*i-16);
 			        	break;
+
+			        case 'L':
+			        	++tps;
+			        	var tp = game.add.sprite(this.tile_size/2+this.tile_size*j - 8, this.tile_size/2+this.tile_size*i-16, tps >= 10 ? 'frame_wide' : 'frame');
+			        	tp.level = tps;
+			        	tp.inputEnabled = true;
+			        	(function(tp, player){
+			        		tp.events.onInputDown.add(function(){ player.dashTarget = tp; }, this);
+			        	})(tp, this.player);
+			        	game.add.bitmapText(this.tile_size/2+this.tile_size*j - 8 + 2, this.tile_size/2+this.tile_size*i-16, 'carrier_command',tp.level, 20).anchor.setTo(0.5, 0.5);
+			        	this.teleporters.add(tp);
+			        	tp.anchor.setTo(0.5, 0.5);
 
 			        case ' ':
 			        	break;
@@ -375,6 +398,10 @@ var mainState = {
     	// Walls
     	game.physics.arcade.overlap(this.player, this.exit, this.nextLevel, null, this);
 		game.physics.arcade.collide(this.player, this.walls);
+		game.physics.arcade.overlap(this.player, this.teleporters, function(p, tp){
+			if(this.player.dashTarget && this.player.dashTarget !== tp) return;
+			curLevel = tp.level; this.restart();
+		}, null, this);
 
 
 		game.physics.arcade.collide(this.enemies, this.walls, function(enemy){ enemy.grounded = true; enemy.body.velocity.x = 0;});
