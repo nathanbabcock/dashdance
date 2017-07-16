@@ -44,7 +44,7 @@ is it a dash or a teleport?
 
 
 LEVEL IDEAS
-- Tutorial: climb a cliff by juggling a single enemy
+X Tutorial: climb a cliff by juggling a single enemy
 - Cross a long horizontal gap via double-jump-hovering and juggling a tanky enemy all the way across
 - Very crowded level where you need to juggle to stay above the crowd?
 - Vertical level with flying enemies in a triangle wave pattern
@@ -153,9 +153,10 @@ X sound fx???
 
 Priority:
 X background
+- fix walljump bug!?!?
 - levels
 - eyeball enemy
-- ending door
+X ending door
 - other directional spikes
 
 extra:
@@ -167,3 +168,9 @@ extra:
 - walking sprite (enemy)
 - damage sprite (enemy)
 - death fx
+
+bugs 
+- glitching into blocks when dashing
+- hitting multiple enemies?
+- running into enemies on dash
+- coming down at enemies = basically instakill
