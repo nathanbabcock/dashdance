@@ -129,12 +129,12 @@ Mario-shaped levels basically
 gfx
 - dash indicator (?)
 - health indicator (?)
-- blood particles
-- enemy sprites
-- spike sprites
-- wall sprites (?)
+X blood particles
+X enemy sprites
+X spike sprites
+X wall sprites (?)
 - death fx
-- screen shake
+X screen shake
 - walking sprite
 - bounciness
 
@@ -147,6 +147,23 @@ also TODO
 - jumping enemies?
 
 
-- sound fx???
+X sound fx???
 - name
 - upload
+
+Priority:
+X background
+- levels
+- eyeball enemy
+- ending door
+- other directional spikes
+
+extra:
+- more sfx, variety
+- more particle fx
+- more sprites
+- health/dash ui
+- walking sprite (player)
+- walking sprite (enemy)
+- damage sprite (enemy)
+- death fx

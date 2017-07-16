@@ -9,6 +9,7 @@ var mainState = {
 		game.load.image('enemy', 'assets/minotaur.png');
 		game.load.image('blood', 'assets/blood.png');
 		game.load.image('smoke', 'assets/smoke.png');
+		game.load.image('bg', 'assets/bg.png');
 
 		// Animation
 		game.load.spritesheet('attack', 'assets/attack.png', 57, 63, 3);
@@ -110,9 +111,61 @@ var mainState = {
 		// Start the Arcade physics system (for movements and collisions)
 		game.physics.startSystem(Phaser.Physics.ARCADE);
 
+		// Design the level. x = wall, o = coin, ! = lava, $ = enemy
+/*		var level = [
+		    'xxxxxxxxxxxxxxxxxxxxxx',
+		    '!         !          x',
+		    '!                 o  x',
+		    '!         o          x',
+		    '!                    x',
+		    '!     o   !    x     x',
+		    'xxxxxxxxxxxxxxxx!!!!!x',
+		];*/
+/*		var level = [
+		    'xxxxxxxxxxxxxxxxxxxxxx',
+		    'x                    x',
+		    'x                    x',
+		    'x                    x',
+		    'x                    x',
+		    'x                    x',
+		    'x                    x',
+		    'x              xxxxxxx',
+		    'x              xxxxxxx',
+		    'x              xxxxxxx',
+		    'x              xxxxxxx',
+		    'x        $     xxxxxxx',
+		    'xxxxxxxxxxxxxxxxxxxxxx',
+		];*/
+
+		var level = [
+		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+		    'x                                   x',
+		    'x                                   x',
+		    'x                                   x',
+		    'x                                   x',
+		    'x                                   x',
+		    'x                                   x',
+		    'x                                   x',
+		    'x                                   x',
+		    'x                                   x',
+		    'x                                   x',
+		    'x     $                             x',
+		    'xxxxxxxx                     xxxxxxxx',
+		    'xxxxxxxx                     xxxxxxxx',
+		    'xxxxxxxx                     xxxxxxxx',
+		    'xxxxxxxx                     xxxxxxxx',
+		    'xxxxxxxx!!!!!!!!!!!!!!!!!!!!!xxxxxxxx',
+		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+		];
+
 		// Add the physics engine to all game objects
+
+		var tile_size = 32,
+			world_width = level[0].length * tile_size,
+			world_height = level.length * tile_size;
 		game.world.enableBody = true;
-		game.world.setBounds(0, 0, 1920, 1920);
+		game.world.setBounds(0, 0, world_width, world_height);
+		game.add.tileSprite(0, 0, world_width, world_height, 'bg');
 
 		// Variable to store the arrow key pressed
 		this.input = {
@@ -183,61 +236,13 @@ var mainState = {
     		jump: game.add.audio('jump')
     	};
 
-		// Design the level. x = wall, o = coin, ! = lava, $ = enemy
-/*		var level = [
-		    'xxxxxxxxxxxxxxxxxxxxxx',
-		    '!         !          x',
-		    '!                 o  x',
-		    '!         o          x',
-		    '!                    x',
-		    '!     o   !    x     x',
-		    'xxxxxxxxxxxxxxxx!!!!!x',
-		];*/
-/*		var level = [
-		    'xxxxxxxxxxxxxxxxxxxxxx',
-		    'x                    x',
-		    'x                    x',
-		    'x                    x',
-		    'x                    x',
-		    'x                    x',
-		    'x                    x',
-		    'x              xxxxxxx',
-		    'x              xxxxxxx',
-		    'x              xxxxxxx',
-		    'x              xxxxxxx',
-		    'x        $     xxxxxxx',
-		    'xxxxxxxxxxxxxxxxxxxxxx',
-		];*/
-
-		var level = [
-		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-		    'x                                   x',
-		    'x                                   x',
-		    'x                                   x',
-		    'x                                   x',
-		    'x                                   x',
-		    'x                                   x',
-		    'x                                   x',
-		    'x                                   x',
-		    'x                                   x',
-		    'x                                   x',
-		    'x     $                             x',
-		    'xxxxxxxx                     xxxxxxxx',
-		    'xxxxxxxx                     xxxxxxxx',
-		    'xxxxxxxx                     xxxxxxxx',
-		    'xxxxxxxx                     xxxxxxxx',
-		    'xxxxxxxx!!!!!!!!!!!!!!!!!!!!!xxxxxxxx',
-		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-		];
-
 		// Create the level by going through the array
-		var tile_size = 32;
 		for (var i = 0; i < level.length; i++) {
 		    for (var j = 0; j < level[i].length; j++) {
 
 		        // Create a wall and add it to the 'walls' group
 		        if (level[i][j] == 'x') {
-		            var wall = game.add.sprite(tile_size+tile_size*j, tile_size+tile_size*i, 'wall');
+		            var wall = game.add.sprite(tile_size/2+tile_size*j, tile_size/2+tile_size*i, 'wall');
 		            this.walls.add(wall);
 		            wall.body.immovable = true;
 		            wall.anchor.setTo(0.5, 0.5);
@@ -245,14 +250,14 @@ var mainState = {
 
 		        // Create a coin and add it to the 'coins' group
 		        else if (level[i][j] == 'o') {
-		            var coin = game.add.sprite(tile_size+tile_size*j, tile_size+tile_size*i, 'coin');
+		            var coin = game.add.sprite(tile_size/2+tile_size*j, tile_size/2+tile_size*i, 'coin');
 		            this.coins.add(coin);
 		            coin.anchor.setTo(0.5, 0.5);
 		        }
 
 		        // Create a enemy and add it to the 'enemies' group
 		        else if (level[i][j] == '!') {
-		            var spike = game.add.sprite(tile_size+tile_size*j, tile_size+tile_size*i, 'spike');
+		            var spike = game.add.sprite(tile_size/2+tile_size*j, tile_size/2+tile_size*i, 'spike');
 		            this.spikes.add(spike);
 		            spike.anchor.setTo(0.5, 0.5);
 		        }
