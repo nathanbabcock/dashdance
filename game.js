@@ -35,6 +35,7 @@ var mainState = {
     gravity: 1000,
     dash_speed: 2000,
     enemy_walk_speed: 100,
+    invuln_time: 500,
 
     playerJump: function(){
     	if(!this.player.hasJump) return;
@@ -206,6 +207,7 @@ var mainState = {
 		if(levels[curLevel].onCreate)
 			levels[curLevel].onCreate.bind(this)();
 
+		game.world.bringToTop(this.enemies);
 		game.world.bringToTop(this.player);
     },
 
@@ -346,6 +348,8 @@ var mainState = {
     	this.attackSprite.animations.add("attack");
     	this.attackSprite.animations.play("attack", 30, false, true);
 
+    	this.player.invuln_until = game.time.now + this.invuln_time;
+
     	//this.player.position.add(this.player.dashVector.clone().setMagnitude(-100));
 		this.player.hasJump = true;
 
@@ -397,7 +401,13 @@ var mainState = {
 
     	// Walls
     	game.physics.arcade.overlap(this.player, this.exit, this.nextLevel, null, this);
-		game.physics.arcade.collide(this.player, this.walls);
+		game.physics.arcade.collide(this.player, this.walls, function(player){
+			if(player.dashTarget && !player.body.touching.down){
+				player.dashTarget = null;
+				player.dashVector = null;
+				player.body.velocity.setTo(0, 0);
+			}
+		}, null, this);
 		game.physics.arcade.overlap(this.player, this.teleporters, function(p, tp){
 			if(this.player.dashTarget && this.player.dashTarget !== tp) return;
 			curLevel = tp.level; this.restart();
@@ -446,7 +456,9 @@ var mainState = {
         	game.physics.arcade.collide(this.player, this.enemies, this.hitEnemy, null, this);
         }
         // Enemies
-        else {
+        else if (this.player.invuln_until > game.time.now){
+			game.physics.arcade.collide(this.player, this.enemies);
+        } else {
         	//this.smokeEmitter.on = false;
         	game.physics.arcade.overlap(this.player, this.enemies, this.playerDeath, null, this);
         }

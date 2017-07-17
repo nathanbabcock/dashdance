@@ -52,7 +52,6 @@ X Tutorial: climb a cliff by juggling a single enemy
 - Jump over a gap into a vertical wall, must blink through the wall to a pacing enemy (timing)
 - U shape, melee enemy, spikes at bottom (and sides)
 
-d
 action-puzzle-platformer
 
 MVP:
@@ -172,11 +171,12 @@ extra:
 - death fx
 
 bugs 
-- glitching into blocks when dashing (make player slightly taller?)
+- glitching into blocks when dashing (make player slightly taller??)
 - hitting multiple enemies?
-- running into enemies on dash (invuln frames?)
-- coming down at enemies = basically instakill (see above?)
-- dashing and getting magnet-stuck under platforms (cancel dash on collision)
-- disable arrow keys after dash
-- up triggers cancel minotaur movement
+X running into enemies on dash (invuln frames?)
+X coming down at enemies = basically instakill (see above?)
+X dashing and getting magnet-stuck under platforms (cancel dash on collision)
+- disable arrow keys after dash (event based rather than continuous polling)
+- up triggers cancel minotaur movement (minor)
 - walking can exceed walking speed (only allow > walk speed in air)
+X door on top of enemies
