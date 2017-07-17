@@ -1,19 +1,19 @@
 var levels = [
 	{
 		level: [
-		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-		    'x                                             x',
-		    'x                                             x',
-		    'x                                             x',
-		    'x                                             x',
-		    'x                                             x',
-		    'x                                             x',
-		    'x                                             x',
-		    'x                                             x',
-		    'x  0  L   L   L   L   L   L   L   L   L   L   x',
-		    'x                                             x',
-		    'x                                             x',
-		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+		    'x                                         x',
+		    'x                                         x',
+		    'x                                         x',
+		    'x                                         x',
+		    'x                                         x',
+		    'x                                         x',
+		    'x                                         x',
+		    'x                                         x',
+		    'x  0  L   L   L   L   L   L   L   L   L   x',
+		    'x                                         x',
+		    'x                                         x',
+		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 		],
 		onCreate: function(){
 			 game.add.bitmapText(150, 100, 'carrier_command','Dashdance', 60);

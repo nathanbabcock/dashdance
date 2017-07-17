@@ -2,7 +2,7 @@
 var mainState = {  
     preload: function() {
         // Sprites
-        game.load.image('player', 'assets/player_highres.png');
+        game.load.image('player2', 'assets/player_highres.png');
 		game.load.image('wall', 'assets/brick.png');
 		game.load.image('coin', 'assets/coin.png');
 		game.load.image('spike', 'assets/spike_up.png');
@@ -17,6 +17,7 @@ var mainState = {
 
 		// Animation
 		game.load.spritesheet('attack', 'assets/attack.png', 57, 63, 3);
+		game.load.spritesheet('player', 'assets/player.png', 32, 32, 2);
 
 		// Sound fx
 		game.load.audio('kill', 'assets/audio/kill.wav');
@@ -24,6 +25,8 @@ var mainState = {
 		game.load.audio('nextlevel', 'assets/audio/nextlevel.wav');
 		game.load.audio('death', 'assets/audio/death.wav');
 		game.load.audio('jump', 'assets/audio/jump.wav');
+		game.load.audio('menu', 'assets/audio/menu.wav');
+		// game.load.audio('impact', 'assets/audio/impact.wav');
 
 		// Fonts
 		game.load.bitmapFont('carrier_command', 'assets/fonts/carrier_command.png', 'assets/fonts/carrier_command.xml');
@@ -142,7 +145,11 @@ var mainState = {
 		};
 		this.input.W.onDown.add(this.playerJump.bind(this));
 		this.input.R.onDown.add(this.playerDeath.bind(this));
-		this.input.ESC.onDown.add((function(){ curLevel = 0; this.restart(); }).bind(this));
+		this.input.ESC.onDown.add((function(){
+			curLevel = 0;
+			this.soundfx.nextlevel.play();
+			this.restart();
+		}).bind(this));
 		this.input.SPACE.onDown.add(this.playerJump.bind(this));
 		this.input.cursor.up.onDown.add(this.playerJump.bind(this));
 		game.input.onDown.add(this.attack.bind(this));
@@ -155,6 +162,7 @@ var mainState = {
 		this.player.hasJump = false;
 		this.player.facing = 'right';
 		this.player.anchor.setTo(0.5, 0.5);
+		this.player.animations.add("walk");
 
 		// Camera
 		game.camera.follow(this.player, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
@@ -199,7 +207,8 @@ var mainState = {
     		hit: game.add.audio('hit'),
     		death: game.add.audio('death'),
     		nextlevel: game.add.audio('nextlevel'),
-    		jump: game.add.audio('jump')
+    		jump: game.add.audio('jump'),
+    		menu: game.add.audio('menu')
     	};
 
     	// Make level
@@ -391,7 +400,6 @@ var mainState = {
     },
 
     nextLevel: function(){
-    	console.log("YOU WIN!");
     	curLevel++;
     	this.soundfx.nextlevel.play();
     	this.restart();
@@ -409,8 +417,11 @@ var mainState = {
 			}
 		}, null, this);
 		game.physics.arcade.overlap(this.player, this.teleporters, function(p, tp){
-			if(this.player.dashTarget && this.player.dashTarget !== tp) return;
-			curLevel = tp.level; this.restart();
+			if(this.player.dashTarget && this.player.dashTarget !== tp)
+				return;
+			this.soundfx.nextlevel.play();
+			curLevel = tp.level;
+			this.restart();
 		}, null, this);
 
 
@@ -469,7 +480,11 @@ var mainState = {
     	// Movement
     	if(!this.player.dashTarget){
 			if (this.input.cursor.left.isDown || this.input.A.isDown) {
-			    this.player.body.velocity.x =  Math.min(-this.walk_speed, this.player.body.velocity.x);
+			    this.player.body.velocity.x = Math.min(-this.walk_speed, this.player.body.velocity.x);
+			    if(this.player.body.touching.down)
+			    	this.player.animations.play("walk", 8, true);
+			    else
+			    	this.player.animations.stop("walk", true);
 			    if (this.player.facing != 'left'){
 					this.player.facing = 'left';
 					this.player.scale.x = -1;
@@ -477,15 +492,20 @@ var mainState = {
 			}
 			else if (this.input.cursor.right.isDown || this.input.D.isDown) {
 			    this.player.body.velocity.x = Math.max(this.walk_speed, this.player.body.velocity.x);
-
+			    if(this.player.body.touching.down)
+			    	this.player.animations.play("walk", 8, true);
+			    else
+			    	this.player.animations.stop("walk", true);
 			    if (this.player.facing != 'right') {
 		            //player.animations.play('right');
 					this.player.facing = 'right';
 					this.player.scale.x = 1;
 				}
 			}
-			else if(this.player.body.touching.down)
+			else if(this.player.body.touching.down){
+				this.player.animations.stop("walk", true);
 			    this.player.body.velocity.x = 0;
+			}
 			
 			if(this.player.body.touching.down)
 				this.player.hasJump = true;
