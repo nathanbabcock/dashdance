@@ -16,7 +16,7 @@ var levels = [
 		    'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
 		],
 		onCreate: function(){
-			 game.add.bitmapText(150, 100, 'carrier_command','Dashdance', 60);
+			 game.add.bitmapText(100, 100, 'carrier_command','Dashdance', 60);
 		}
 	},
 

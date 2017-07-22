@@ -2,18 +2,17 @@
 var mainState = {  
     preload: function() {
         // Sprites
-        game.load.image('player2', 'assets/player_highres.png');
+        // game.load.image('player2', 'assets/player_highres.png');
 		game.load.image('wall', 'assets/brick.png');
-		game.load.image('coin', 'assets/coin.png');
 		game.load.image('spike', 'assets/spike_up.png');
 		game.load.image('minotaur', 'assets/minotaur.png');
 		game.load.image('eyeball', 'assets/eyeball.png');
 		game.load.image('blood', 'assets/blood.png');
-		game.load.image('smoke', 'assets/smoke.png');
+		// game.load.image('smoke', 'assets/smoke.png');
 		game.load.image('bg', 'assets/bg.png');
 		game.load.image('door', 'assets/door.png');
 		game.load.image('frame', 'assets/frame.png');
-		game.load.image('frame_wide', 'assets/frame_wide.png');
+		// game.load.image('frame_wide', 'assets/frame_wide.png');
 
 		// Animation
 		game.load.spritesheet('attack', 'assets/attack.png', 57, 63, 3);
@@ -25,7 +24,7 @@ var mainState = {
 		game.load.audio('nextlevel', 'assets/audio/nextlevel.wav');
 		game.load.audio('death', 'assets/audio/death.wav');
 		game.load.audio('jump', 'assets/audio/jump.wav');
-		game.load.audio('menu', 'assets/audio/menu.wav');
+		// game.load.audio('menu', 'assets/audio/menu.wav');
 		// game.load.audio('impact', 'assets/audio/impact.wav');
 
 		// Fonts
@@ -118,10 +117,15 @@ var mainState = {
         // Here we create the game
 
         // Set the background color to blue
-		game.stage.backgroundColor = '#ffffff';//'#3598db';
+		game.stage.backgroundColor = '#000000';//'#3598db';
 
 		// Start the Arcade physics system (for movements and collisions)
 		game.physics.startSystem(Phaser.Physics.ARCADE);
+
+		// Update save
+		var maxLevel = localStorage.getItem("dashdance_maxlevel");
+		if(!maxLevel) maxLevel = "1";
+		localStorage.setItem("dashdance_maxlevel", Math.max(maxLevel, curLevel));
 
 		// Init world and level
 		var thisLevel = levels[curLevel];
@@ -188,7 +192,7 @@ var mainState = {
     	// this.bloodEmitter.minParticleScale = 1.25;
     	//this.bloodEmitter.maxParticleSpeed = 1000;
 
-    	// Smoke emitter
+    	/*// Smoke emitter
     	this.smokeEmitter = game.add.emitter(0, 0, 100);
     	this.smokeEmitter.makeParticles('smoke');
     	this.smokeEmitter.gravity = 0;
@@ -199,7 +203,7 @@ var mainState = {
         this.smokeEmitter.minParticleSpeed.setTo(-50, -50);
     	this.smokeEmitter.maxParticleSpeed.setTo(50, 50);
     	//this.smokeEmitter.start(false, 1000, 1);
-    	//this.smokeEmitter.on = false;
+    	//this.smokeEmitter.on = false;*/
 
     	// Audio
     	this.soundfx = {
@@ -207,8 +211,8 @@ var mainState = {
     		hit: game.add.audio('hit'),
     		death: game.add.audio('death'),
     		nextlevel: game.add.audio('nextlevel'),
-    		jump: game.add.audio('jump'),
-    		menu: game.add.audio('menu')
+    		jump: game.add.audio('jump')
+    		// menu: game.add.audio('menu')
     	};
 
     	// Make level
@@ -319,7 +323,8 @@ var mainState = {
 			        	(function(tp, player){
 			        		tp.events.onInputDown.add(function(){ player.dashTarget = tp; }, this);
 			        	})(tp, this.player);
-			        	game.add.bitmapText(this.tile_size/2+this.tile_size*j - 8 + 2, this.tile_size/2+this.tile_size*i-16, 'carrier_command',tp.level, 20).anchor.setTo(0.5, 0.5);
+			        	var text = localStorage.getItem("dashdance_maxlevel") >= tp.level ? tp.level : "?";
+			        	game.add.bitmapText(this.tile_size/2+this.tile_size*j - 8 + 2, this.tile_size/2+this.tile_size*i-16, 'carrier_command', text, 20).anchor.setTo(0.5, 0.5);
 			        	this.teleporters.add(tp);
 			        	tp.anchor.setTo(0.5, 0.5);
 
@@ -419,6 +424,14 @@ var mainState = {
 		game.physics.arcade.overlap(this.player, this.teleporters, function(p, tp){
 			if(this.player.dashTarget && this.player.dashTarget !== tp)
 				return;
+			if(localStorage.getItem("dashdance_maxlevel") < tp.level){
+				if(this.player.dashTarget){
+					this.player.dashTarget = null;
+					this.player.dashVector = null;
+					this.player.body.velocity.setTo(0, 0);
+				}
+				return;
+			}
 			this.soundfx.nextlevel.play();
 			curLevel = tp.level;
 			this.restart();
@@ -530,6 +543,6 @@ var mainState = {
 // Initialize the game and start our state
 var curLevel = 0;
 
-var game = new Phaser.Game(1024, 768);  
+var game = new Phaser.Game(800, 600);  
 game.state.add('main', mainState);  
 game.state.start('main');
